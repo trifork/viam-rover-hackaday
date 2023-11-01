@@ -1,6 +1,5 @@
-import { Observable, Subject, interval } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { XBOX360_BUTTONS } from "./buttons";
-import { cloneElement } from "react";
 
 class GamepadListener {
     private throttledEvent: Subject<boolean> = new Subject();
@@ -15,7 +14,7 @@ class GamepadListener {
     public gamerPad$: Observable<Gamepad> = this.gamepadSubject.asObservable();
 
     
-    public async registerListeners() {
+    public async registerListeners(interval: number) {
         window.addEventListener("gamepadconnected", (e) => {
             console.log(
               "Gamepad connected at index %d: %s. %d buttons, %d axes.",
@@ -27,12 +26,12 @@ class GamepadListener {
             setInterval(() => {
                 var allButtons = navigator.getGamepads()[0]?.buttons;
                 if (allButtons) {
-                    this.throttledEvent.next(allButtons[1].pressed);
-                    this.brakeEvent.next(allButtons[2].pressed);
-                    this.leftEvent.next(allButtons[14].pressed);
-                    this.rightEvent.next(allButtons[15].pressed);
+                    this.throttledEvent.next(allButtons[XBOX360_BUTTONS.A].pressed);
+                    this.brakeEvent.next(allButtons[XBOX360_BUTTONS.B].pressed);
+                    this.leftEvent.next(allButtons[XBOX360_BUTTONS.DPAD_LEFT].pressed);
+                    this.rightEvent.next(allButtons[XBOX360_BUTTONS.DPAD_RIGHT].pressed);
                 }
-            }, 100);
+            }, interval);
           });
 
     }

@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
    
   }
   async ngOnInit(): Promise<void> {
-    await this.viamService.initViam();
+    await this.viamService.main();
     await this.gamepadService.registerListeners(1);
     this.subs.add(this.gamepadService.breake$.subscribe( (isBreak) => {
         // Reverse

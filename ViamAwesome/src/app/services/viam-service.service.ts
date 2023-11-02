@@ -5,9 +5,6 @@ import {createRobotClient, BoardClient, MotorClient, BaseClient, CameraClient, D
   providedIn: 'root'
 })
 export class ViamService {
-  brake() {
-    throw new Error('Method not implemented.');
-  }
   private localBoardClient?: BoardClient;
   private rightMotorClient?: MotorClient;
   private leftMotorClient?: MotorClient;
@@ -24,17 +21,17 @@ export class ViamService {
     const host = 'iamrobot-main.nm13vq5v0p.viam.cloud';
       
     try {
-      const secret = 'robot-location-secret';
-      const key = 'x8ml9izy7z6p5esu1eufr4zs30hv9s60sb12fyu45ppx1j7f';
-      const addr = 'https://app.viam.com:443';
+
+       const host = 'iamrobot-main.nm13vq5v0p.viam.cloud';
+
       this.robotClient = await createRobotClient({
         host,
         credential: {
-          type: secret,
-          payload: key,
+          type: 'robot-location-secret',
+          payload: 'x8ml9izy7z6p5esu1eufr4zs30hv9s60sb12fyu45ppx1j7f',
         },
         authEntity: host,
-        signalingAddress: addr,
+        signalingAddress: 'https://app.viam.com:443',
       });
       
     
@@ -69,32 +66,36 @@ export class ViamService {
     // Data-Management-Service
     this.dataManagementClient = new DataManagerClient(this.robotClient, 'Data-Management-Service');
   
-    console.log('Resources:');
+    console.log('Resources:'); 
 
     } catch (error) {
         console.log("Error connecting", error);
     }
   }
 
-  private async getAvailableResources() {
+  public async getAvailableResources() {
     if(!this.robotClient) return;
     console.log(await this.robotClient.resourceNames());
   }
 
   public leftMotorForward() {
-
+    this.leftMotorClient?.setPower(100);
   }
 
   public leftMotorReverse() {
-
   }
 
   public rightMotorForward() {
-
+    this.rightMotorClient?.setPower(100);
   }
 
   public rightMotorReverse() {
 
+  }
+
+  public brake() {
+    this.rightMotorClient?.stop();
+    this.leftMotorClient?.stop();
   }
 
 }

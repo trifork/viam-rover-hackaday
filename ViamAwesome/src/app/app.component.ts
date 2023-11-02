@@ -12,6 +12,10 @@ export class AppComponent implements OnInit {
   title = 'ViamAwesome';
   private subs: Subscription = new Subscription();
 
+  private isMovingForward = false;
+  private  isTurningLeft = false;
+  private isTurningright = false;
+
   constructor(private viamService: ViamService, private gamepadService: GamepadService) {
    
   }
@@ -25,16 +29,38 @@ export class AppComponent implements OnInit {
     ));
     this.subs.add(this.gamepadService.throttle$.subscribe( (isThrottle) => {
       // Forward
+        if(this.isMovingForward != isThrottle) {
+          this.isMovingForward = isThrottle;
+          if(isThrottle) {
+            // drive
+            console.log('DRIVING')
+            this.viamService.leftMotorForward();
+            this.viamService.rightMotorForward();
+          } else {
+            // stop
+            this.viamService.brake();
+          }
+        }
+
       }
     ));
     this.subs.add(this.gamepadService.turningLeft$.subscribe( (turningLeft) => {
-      // turnLeft
+        if(this.isTurningLeft != turningLeft) {
+        // turnLeft
+        
+        }
       }
     ));
 
     this.subs.add(this.gamepadService.turningRight$.subscribe( (turningRight) => {
       // turnRight
+      if(this.isTurningright != turningRight) {
+        // turnLeft
+        
+        }
       }
     ));
+
+    await this.viamService.getAvailableResources();
   }
 }

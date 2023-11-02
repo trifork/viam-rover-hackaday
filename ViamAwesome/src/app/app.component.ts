@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ViamService } from './services/viam-service.service';
 import { GamepadService } from './services/gamepad.service';
-import { Subscription } from 'rxjs';
+import { Subscription, tap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -27,38 +27,27 @@ export class AppComponent implements OnInit {
         this.viamService.brake();
       }
     ));
-    this.subs.add(this.gamepadService.throttle$.subscribe( (isThrottle) => {
-      // Forward
-        if(this.isMovingForward != isThrottle) {
-          this.isMovingForward = isThrottle;
-          if(isThrottle) {
-            // drive
-            console.log('DRIVING')
-            this.viamService.leftMotorForward();
-            this.viamService.rightMotorForward();
-          } else {
-            // stop
-            this.viamService.brake();
-          }
-        }
-
+    this.subs.add(this.gamepadService.throttle$.pipe(tap(isThrottle => isThrottle != this.isMovingForward)).subscribe(newState => {
+      if(newState == true) {
+        this.viamService.leftMotorForward();
+        this.viamService.rightMotorForward();
+      } else {
+        this.viamService.brake();
       }
-    ));
-    this.subs.add(this.gamepadService.turningLeft$.subscribe( (turningLeft) => {
-        if(this.isTurningLeft != turningLeft) {
-        // turnLeft
-        
+    }));
+    this.subs.add(this.gamepadService.turningLeft$.pipe(tap(turningLeft => this.isTurningLeft != turningLeft)).subscribe( (newState) => {
+        if(newState === true) {
+          this.viamService.turnLeft();
         }
       }
     ));
 
-    this.subs.add(this.gamepadService.turningRight$.subscribe( (turningRight) => {
+    this.subs.add(this.gamepadService.turningRight$.pipe(tap(turningRight => this.isTurningright != turningRight)).subscribe( (newState) => {
       // turnRight
-      if(this.isTurningright != turningRight) {
-        // turnLeft
-        
-        }
+      if(newState === true) {
+        this.viamService.turnRight();
       }
+    }
     ));
 
     await this.viamService.getAvailableResources();

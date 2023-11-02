@@ -5,6 +5,7 @@ import {createRobotClient, BoardClient, MotorClient, BaseClient, CameraClient, D
   providedIn: 'root'
 })
 export class ViamService {
+
   private localBoardClient?: BoardClient;
   private rightMotorClient?: MotorClient;
   private leftMotorClient?: MotorClient;
@@ -79,14 +80,14 @@ export class ViamService {
   }
 
   public leftMotorForward() {
-    this.leftMotorClient?.setPower(100);
+    this.leftMotorClient?.setPower(1);
   }
 
   public leftMotorReverse() {
   }
 
   public rightMotorForward() {
-    this.rightMotorClient?.setPower(100);
+    this.rightMotorClient?.setPower(1);
   }
 
   public rightMotorReverse() {
@@ -98,4 +99,12 @@ export class ViamService {
     this.leftMotorClient?.stop();
   }
 
+  public turnLeft() {
+    this.leftMotorClient?.setPower(1);
+    this.rightMotorClient?.setPower(-1)
+  }
+  public turnRight() {
+    this.leftMotorClient?.setPower(-1);
+    this.rightMotorClient?.setPower(1)
+  }
 }

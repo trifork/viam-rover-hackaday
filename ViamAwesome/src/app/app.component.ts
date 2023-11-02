@@ -16,10 +16,11 @@ export class AppComponent implements OnInit {
    
   }
   async ngOnInit(): Promise<void> {
-    await this.viamService.main();
+    await this.viamService.initViam();
     await this.gamepadService.registerListeners(1);
     this.subs.add(this.gamepadService.breake$.subscribe( (isBreak) => {
         // Reverse
+        this.viamService.brake();
       }
     ));
     this.subs.add(this.gamepadService.throttle$.subscribe( (isThrottle) => {

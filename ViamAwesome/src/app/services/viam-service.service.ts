@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {createRobotClient, BoardClient, MotorClient, BaseClient, CameraClient, DataManagerClient, EncoderClient, MovementSensorClient, RobotClient} from '@viamrobotics/sdk';
+import { PCDLoader } from 'three/examples/jsm/loaders/PCDLoader';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class ViamService {
   private accelerometerMovementClient?: MovementSensorClient;
   private dataManagementClient?: DataManagerClient;
   private robotClient?: RobotClient;
+  private lidarClient?: CameraClient;
 
   constructor() { }
 
@@ -62,7 +64,7 @@ export class ViamService {
     this.accelerometerMovementClient = new MovementSensorClient(this.robotClient, 'accelerometer');
   
     // my_lidar
-    this.cameraClient = new CameraClient(this.robotClient, 'my_lidar');
+    this.lidarClient = new CameraClient(this.robotClient, 'my_lidar');
   
     // Data-Management-Service
     this.dataManagementClient = new DataManagerClient(this.robotClient, 'Data-Management-Service');
@@ -72,6 +74,10 @@ export class ViamService {
     } catch (error) {
         console.log("Error connecting", error);
     }
+  }
+
+  public async getLidar() {
+   return await this.lidarClient?.getPointCloud();
   }
 
   public async getAvailableResources() {
@@ -94,17 +100,80 @@ export class ViamService {
 
   }
 
-  public brake() {
-    this.rightMotorClient?.stop();
-    this.leftMotorClient?.stop();
+  public async brake() {
+    try {
+      await this.rightMotorClient?.stop();
+      await this.leftMotorClient?.stop();
+    } catch (error) {
+      
+    }
   }
 
-  public turnLeft() {
-    this.leftMotorClient?.setPower(1);
-    this.rightMotorClient?.setPower(-1)
+  public async turnLeft() {
+   try {
+    await this.leftMotorClient?.setPower(-1);
+    await this.rightMotorClient?.setPower(1)
+   } catch (error) {
+    
+   }
   }
-  public turnRight() {
-    this.leftMotorClient?.setPower(-1);
-    this.rightMotorClient?.setPower(1)
+  public async turnRight() {
+    try {
+      await this.leftMotorClient?.setPower(1);
+      await this.rightMotorClient?.setPower(-1)
+    } catch (error) {
+      
+    }
   }
+
+  /* private createPCDFile(uint8Array: Uint8Array): Uint8Array {
+    // PCD file header
+    const header = `# .PCD v.7 - Point Cloud Data file format\nFIELDS x y z\nSIZE 4 4 4\nTYPE F F F\nDATA ascii`;
+  
+    // Convert the header and data to Uint8Array
+    const headerUint8Array = new TextEncoder().encode(header + '\n');
+    const newlineUint8Array = new TextEncoder().encode('\n');
+    
+    // Combine the header and data into a single Uint8Array
+    const combinedUint8Array = new Uint8Array(
+      headerUint8Array.byteLength + newlineUint8Array.byteLength + uint8Array.byteLength
+    );
+    combinedUint8Array.set(headerUint8Array, 0);
+    combinedUint8Array.set(newlineUint8Array, headerUint8Array.byteLength);
+    combinedUint8Array.set(uint8Array, headerUint8Array.byteLength + newlineUint8Array.byteLength);
+  
+    fs.writeFile('yourPointCloud.pcd', combinedUint8Array, (err) => {
+      if (err) {
+        console.error('Error writing the file:', err);
+        return;
+      }
+      console.log('PCD file created successfully');
+    });
+    return combinedUint8Array;
+  } */
+
+  // Function to create and download the .pcd file
+/*  downloadPCDFile(uint8Array: Uint8Array) {
+  const pcdData = new Blob([uint8Array], { type: 'octet/stream' });
+
+  // Create a temporary URL for the Blob
+  const url = URL.createObjectURL(pcdData);
+
+  // Create an <a> element
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'yourPointCloud.pcd'; // Set the filename
+
+  // Append the <a> element to the DOM
+  document.body.appendChild(link);
+
+  // Simulate a click on the <a> element to trigger the download
+  link.click();
+
+  // Clean up
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+} */
+
+  
 }

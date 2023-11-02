@@ -22,34 +22,36 @@ export class AppComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     await this.viamService.initViam();
     await this.gamepadService.registerListeners(1);
-    this.subs.add(this.gamepadService.breake$.subscribe( (isBreak) => {
+    this.subs.add(this.gamepadService.breake$.subscribe( async (isBreak) => {
         // Reverse
-        this.viamService.brake();
+        await this.viamService.brake();
       }
     ));
-    this.subs.add(this.gamepadService.throttle$.pipe(tap(isThrottle => isThrottle != this.isMovingForward)).subscribe(newState => {
+    this.subs.add(this.gamepadService.throttle$.pipe(tap(isThrottle => isThrottle != this.isMovingForward)).subscribe(async newState => {
       if(newState == true) {
-        this.viamService.leftMotorForward();
-        this.viamService.rightMotorForward();
+        await this.viamService.leftMotorForward();
+        await this.viamService.rightMotorForward();
       } else {
-        this.viamService.brake();
+        await this.viamService.brake();
       }
     }));
-    this.subs.add(this.gamepadService.turningLeft$.pipe(tap(turningLeft => this.isTurningLeft != turningLeft)).subscribe( (newState) => {
+    this.subs.add(this.gamepadService.turningLeft$.pipe(tap(turningLeft => this.isTurningLeft != turningLeft)).subscribe( async (newState) => {
         if(newState === true) {
-          this.viamService.turnLeft();
+          await this.viamService.turnLeft();
         }
       }
     ));
 
-    this.subs.add(this.gamepadService.turningRight$.pipe(tap(turningRight => this.isTurningright != turningRight)).subscribe( (newState) => {
+    this.subs.add(this.gamepadService.turningRight$.pipe(tap(turningRight => this.isTurningright != turningRight)).subscribe( async (newState) => {
       // turnRight
       if(newState === true) {
-        this.viamService.turnRight();
+        await this.viamService.turnRight();
       }
     }
     ));
 
     await this.viamService.getAvailableResources();
   }
+
+
 }

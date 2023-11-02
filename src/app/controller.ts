@@ -1,9 +1,68 @@
 
 import * as VIAM from '@viamrobotics/sdk';
 
+class Control {
+  isPressed: Boolean;
+
+  constructor(isPressed: Boolean) {
+    this.isPressed = isPressed;
+  }
+}
+
 class RobotController {
-    
-    public async controlRobot() {
+    leftClient!: VIAM.MotorClient;
+    rightClient!: VIAM.MotorClient;
+    camClient!: VIAM.CameraClient;
+
+    motorClientStop : Number = 0
+
+    backwards(control: Control) {
+        const power = control.isPressed ? -1 : 0;
+        this.leftMotorClient(power)
+        this.rightMotorClient(power)
+    }
+
+    forward(control: Control) {
+        const power = control.isPressed ? 1 : 0;
+        this.leftMotorClient(power)
+        this.rightMotorClient(power)
+    }
+
+    left(control: Control) {
+        const power = control.isPressed ? 1 : 0;
+        this.leftMotorClient(power)
+        this.rightMotorClient(0)
+    }
+
+    right(control: Control) {
+      const power = control.isPressed ? 1 : 0;
+      this.rightMotorClient(power)
+      this.leftMotorClient(0) 
+    }
+
+    stop() {
+        this.leftMotorClient(0)
+        this.rightMotorClient(0)
+    }
+
+    private leftMotorClient(power: number) {
+        this.motorClient(power, this.leftClient)
+    }
+
+    private rightMotorClient(power: number) {
+        this.motorClient(power, this.rightClient)
+    }
+
+    private motorClient(power: number, client: VIAM.MotorClient) {
+        if(power == this.motorClientStop) {
+          client.stop()
+          return
+        }
+        
+        client.setPower(power)
+    }
+
+    public async init() {
         const host = 'iamrobot-main.nm13vq5v0p.viam.cloud';
       
         const robot = await VIAM.createRobotClient({
@@ -23,16 +82,13 @@ class RobotController {
         console.log('local getGPIO return value:', localReturnValue);
       
         // right
-        const rightClient = new VIAM.MotorClient(robot, 'right');
-        const rightReturnValue = await rightClient.isMoving();
+        this.rightClient = new VIAM.MotorClient(robot, 'right');
+        const rightReturnValue = await this.rightClient.isMoving();
         console.log('right isMoving return value:', rightReturnValue);
-
-        //rightClient.setPower(-0.5)
-        rightClient.stop()
       
         // left
-        const leftClient = new VIAM.MotorClient(robot, 'left');
-        const leftReturnValue = await leftClient.isMoving();
+        this.leftClient = new VIAM.MotorClient(robot, 'left');
+        const leftReturnValue = await this.leftClient.isMoving();
         console.log('left isMoving return value:', leftReturnValue);
       
         // viam_base
@@ -41,8 +97,8 @@ class RobotController {
         console.log('viam_base isMoving return value:', viamBaseReturnValue);
       
         // cam
-        const camClient = new VIAM.CameraClient(robot, 'cam');
-        const camReturnValue = await camClient.getImage();
+        this.camClient = new VIAM.CameraClient(robot, 'cam');
+        const camReturnValue = await this.camClient.getImage();
         console.log('cam getImage return value:', camReturnValue);
       
         // Renc
@@ -61,9 +117,9 @@ class RobotController {
         console.log('accelerometer getLinearAcceleration return value:', accelerometerReturnValue);
       
         // my_lidar
-        const myLidarClient = new VIAM.CameraClient(robot, 'my_lidar');
-        const myLidarReturnValue = await myLidarClient.getImage();
-        console.log('my_lidar getImage return value:', myLidarReturnValue);
+        //const myLidarClient = new VIAM.CameraClient(robot, 'my_lidar');
+        //const myLidarReturnValue = await myLidarClient.getImage();
+        //console.log('my_lidar getImage return value:', myLidarReturnValue);
       
         // Data-Management-Service
         const dataManagementServiceClient = new VIAM.DataManagerClient(robot, 'Data-Management-Service');
@@ -80,6 +136,4 @@ class RobotController {
 }
 
 
-
-
-export default RobotController
+export { RobotController, Control}

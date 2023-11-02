@@ -14,15 +14,8 @@ class GamepadListener {
     public gamerPad$: Observable<Gamepad> = this.gamepadSubject.asObservable();
 
     
-    public async registerListeners(interval: number) {
+    public registerListeners(interval: number) {
         window.addEventListener("gamepadconnected", (e) => {
-            console.log(
-              "Gamepad connected at index %d: %s. %d buttons, %d axes.",
-              e.gamepad.index,
-              e.gamepad.id,
-              e.gamepad.buttons.length,
-              e.gamepad.axes.length,
-            );
             setInterval(() => {
                 var allButtons = navigator.getGamepads()[0]?.buttons;
                 if (allButtons) {
